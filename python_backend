@@ -1,0 +1,29 @@
+from flask import Flask, request, render_template_string
+
+app = Flask(__name__)
+
+messages = []  # just a list, can replace with a database later
+
+@app.route('/')
+def home():
+    return open("index.html").read()
+
+@app.route('/send', methods=['POST'])
+def send():
+    child = request.form['child']
+    parent = request.form['parent']
+    msg = request.form['message']
+    messages.append((child, parent, msg))
+    return "Message sent! ✅"
+
+@app.route('/admin')
+def admin():
+    return render_template_string("""
+        <h1>Messages</h1>
+        {% for c,p,m in messages %}
+          <p><b>{{c}}</b> (from {{p}}): {{m}}</p>
+        {% endfor %}
+        <button onclick="window.print()">Print Messages</button>
+    """, messages=messages)
+
+app.run(debug=True)
